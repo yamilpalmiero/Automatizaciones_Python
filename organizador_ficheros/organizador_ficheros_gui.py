@@ -10,6 +10,8 @@ class OrganizadorArchivos:
         self.root.title("Organizador de Archivos")
         self.root.geometry("600x500")
         self.root.resizable(True, True)
+        #icon_path = os.path.join(os.path.dirname(__file__), "img", "icon.ico")
+        #self.root.iconbitmap(icon_path)
         
         # Variables
         self.ruta_seleccionada = tk.StringVar()
@@ -158,16 +160,10 @@ class OrganizadorArchivos:
             return
         
         try:
-            # Crear carpetas
-            for categoria in self.tipos_archivo.keys():
-                ruta_carpeta = os.path.join(ruta, categoria)
-                if not os.path.exists(ruta_carpeta):
-                    os.makedirs(ruta_carpeta)
+            # MODIFICACIÓN: Primero identificar qué archivos hay y qué carpetas necesitar crear
+            archivos_por_categoria = {}
             
-            archivos_movidos = 0
-            errores = []
-            
-            # Organizar archivos
+            # Recorrer archivos y clasificarlos
             for archivo in os.listdir(ruta):
                 ruta_archivo = os.path.join(ruta, archivo)
                 if os.path.isfile(ruta_archivo):
@@ -175,16 +171,41 @@ class OrganizadorArchivos:
                     
                     for categoria, extensiones in self.tipos_archivo.items():
                         if extension in extensiones:
-                            try:
-                                destino = os.path.join(ruta, categoria, archivo)
-                                shutil.move(ruta_archivo, destino)
-                                archivos_movidos += 1
-                                break
-                            except Exception as e:
-                                errores.append(f"{archivo}: {str(e)}")
+                            if categoria not in archivos_por_categoria:
+                                archivos_por_categoria[categoria] = []
+                            archivos_por_categoria[categoria].append(archivo)
+                            break
+            
+            # MODIFICACIÓN: Solo crear carpetas para las categorías que tienen archivos
+            carpetas_creadas = []
+            for categoria in archivos_por_categoria.keys():
+                ruta_carpeta = os.path.join(ruta, categoria)
+                if not os.path.exists(ruta_carpeta):
+                    os.makedirs(ruta_carpeta)
+                    carpetas_creadas.append(categoria)
+            
+            archivos_movidos = 0
+            errores = []
+            
+            # Mover archivos a sus carpetas correspondientes
+            for categoria, archivos in archivos_por_categoria.items():
+                for archivo in archivos:
+                    ruta_archivo = os.path.join(ruta, archivo)
+                    try:
+                        destino = os.path.join(ruta, categoria, archivo)
+                        shutil.move(ruta_archivo, destino)
+                        archivos_movidos += 1
+                    except Exception as e:
+                        errores.append(f"{archivo}: {str(e)}")
             
             # Mostrar resultados
             mensaje = f"Organización completada!\n\nArchivos movidos: {archivos_movidos}"
+            if carpetas_creadas:
+                mensaje += f"\nCarpetas creadas: {len(carpetas_creadas)}"
+                mensaje += f"\n({', '.join(carpetas_creadas)})"
+            else:
+                mensaje += "\nNo se crearon carpetas nuevas."
+            
             if errores:
                 mensaje += f"\nErrores: {len(errores)}"
                 for error in errores[:3]:  # Mostrar solo los primeros 3 errores
