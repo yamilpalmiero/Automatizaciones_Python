@@ -10,8 +10,8 @@ class OrganizadorArchivos:
         self.root.title("Organizador de Archivos")
         self.root.geometry("600x500")
         self.root.resizable(True, True)
-        #icon_path = os.path.join(os.path.dirname(__file__), "img", "icon.ico")
-        #self.root.iconbitmap(icon_path)
+        icon_path = os.path.join(os.path.dirname(__file__), "img", "organizador_ficheros_icon.ico")
+        self.root.iconbitmap(icon_path)
         
         # Variables
         self.ruta_seleccionada = tk.StringVar()
