@@ -3,6 +3,14 @@ import shutil
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from pathlib import Path
+import sys
+
+
+
+def obtener_ruta_recurso(rel_path):
+    """ Devuelve la ruta absoluta al recurso, compatible con PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, rel_path)
 
 class OrganizadorArchivos:
     def __init__(self, root):
@@ -10,7 +18,8 @@ class OrganizadorArchivos:
         self.root.title("Organizador de Archivos")
         self.root.geometry("600x500")
         self.root.resizable(True, True)
-        icon_path = os.path.join(os.path.dirname(__file__), "img", "organizador_ficheros_icon.ico")
+        #icon_path = os.path.join(os.path.dirname(__file__), "img", "organizador_ficheros_icon.ico")
+        icon_path = obtener_ruta_recurso(os.path.join("img", "organizador_ficheros_icon.ico"))
         self.root.iconbitmap(icon_path)
         
         # Variables
